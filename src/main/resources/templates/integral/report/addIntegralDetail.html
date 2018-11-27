@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="zh_CN" xmlns:th="http://www.thymeleaf.org"
+	xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+	<head th:include="include::header">
+	<meta charset="UTF-8">
+		<!-- 
+			author:rjc
+			date:2018年11月23日
+			desc:积分添加明细查询
+		-->
+		<title>积分添加明细查询</title>
+	</head>
+	<body>
+	<div  id="integral_detail_toolbar" style=" height: 70px; padding:5px; background: #fafafa;">  
+			<form id="paramFrom">
+		        <input id="customerIdcard" class="easyui-textbox" name="customerIdcard" style="width:200px;" data-options="label:'身份证',">
+		        <input shiro:hasPermission="integral:customer:hidden:flag" id="startDate" class="easyui-datetimebox"  name="startDate" style="width:200px;" data-options="label:'开始日期',showSeconds:'true'">
+		        <input shiro:hasPermission="integral:customer:hidden:flag" id="endDate" class="easyui-datetimebox" name="endDate" style="width:200px;align:left;" data-options="label:'结束日期',showSeconds:'true'">
+	        </form>
+			<!--  -->
+			<a href="#" class="easyui-linkbutton" plain="true" icon="icon-reload" onclick="searchIntegralDetail(1)">查询</a> 
+			<a shiro:hasPermission="integral:detail:export" href="#" class="easyui-linkbutton" plain="true" icon="icon-print" onclick="detailExport(1)">客户信息导出</a>
+	          
+		</div>
+	<table class="easyui-datagrid" id="integralDetailGrid" style="width:100%;height:480px;"
+		data-options="singleSelect:true,
+		 		collapsible:true,
+				pagination:true,
+				rownumbers:true,
+				url:'', 
+				method:'post',
+				pageSize:10, 
+				fitColumns:false,
+				toolbar:integral_detail_toolbar">
+			<thead>
+		        <tr>
+		        	<th data-options="field:'customerName',width:80,align:'left'">客户名称</th>
+		            <th data-options="field:'customerIdcard',width:140,align:'left'">身份证</th>
+		            <th data-options="field:'customerIntegral',width:100,align:'left'">添加积分</th>
+		            
+		            <th data-options="field:'customerAccount',width:140,align:'left'">账号</th>
+		            <th data-options="field:'accountNumber',width:100,align:'left'">账号序号</th>
+		            <th data-options="field:'depositReceiptNum',width:100,align:'left'">存单号</th>
+		            <th data-options="field:'duration',width:100,align:'left'">是否在存续期</th>
+		            <th data-options="field:'depositReceiptAmt',width:100,align:'left'">存单金额</th>
+		            <th data-options="field:'marketingPeople1',width:90,align:'left'">营销人1</th>
+		            <th data-options="field:'marketingPeopleAmt1',width:90,align:'left'">营销人1金额</th>
+		            <th data-options="field:'marketingPeople2',width:90,align:'left'">营销人2</th>
+		            <th data-options="field:'marketingPeopleAmt2',width:90,align:'left'">营销人2金额</th>
+		            <th data-options="field:'marketingPeople3',width:90,align:'left'">营销人3</th>
+		            <th data-options="field:'marketingPeopleAmt3',width:90,align:'left'">营销人3金额</th>
+		            <th data-options="field:'capitalSource1',width:90,align:'left'">资金来源1</th>
+		            <th data-options="field:'capitalSourceAmt1',width:90,align:'left'">资金来源金额1</th>
+		            <th data-options="field:'capitalSource2',width:90,align:'left'">资金来源2</th>
+		            <th data-options="field:'capitalSourceAmt2',width:90,align:'left'">资金来源金额2</th>
+		            <th data-options="field:'capitalSource3',width:90,align:'left'">资金来源3</th>
+		            <th data-options="field:'capitalSourceAmt3',width:90,align:'left'">资金来源金额3</th>
+		            
+		            <th data-options="field:'configTypeName',width:120,align:'left'">添加积分类型</th>
+		            <th data-options="field:'integralCalcNum',width:100,align:'left'">积分计算系数</th>
+		            
+		            <th data-options="field:'remark',width:120,align:'left'">备注</th>
+		            <th data-options="field:'createName',width:120,align:'left'">录入人</th>
+		            <th data-options="field:'deptName',width:130,align:'left'">录入机构</th>
+		            <th data-options="field:'createTime',width:130,align:'left'">录入时间</th>
+		        </tr>
+		    </thead>
+		
+	</table>
+	
+	<div th:include="include::footer"></div><div>
+		<script type="text/javascript">
+			var hiddenFlag = 1;
+		</script>
+		</div>
+		<!-- 身份证是否显示为*号， 1：显示， 2：不显示 -->
+		<div shiro:hasPermission="integral:detail:idcard">
+			<script type="text/javascript">
+				var hiddenFlag = 2;
+			</script>
+		</div>
+		<script type="text/javascript" src="/js/appjs/integral/report/integralDetail.js"></script>
+	</body>
+</html>

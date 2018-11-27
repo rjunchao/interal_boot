@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="zh_CN" xmlns:th="http://www.thymeleaf.org"
+	xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+	<head th:include="include::header">
+	<meta charset="UTF-8">
+		<!-- 
+			author:rjc
+			date:2018年11月22日
+			desc: 添加客户
+		-->
+		<title>添加客户</title>
+	</head>
+	<body>
+		<form id="customerForm" class="customerForm" method="post" action="/integral/customer/addSave">
+		    <table style="width:100%;text-align:center;">
+		        <tr>
+		            <td style="text-align:right;">客户名称：</td>
+		            <td style="text-align:left;">
+		            	<input name="pkCustomerInfo" type="hidden" th:value="${cust.pkCustomerInfo}"/>
+		            	<input name="realIdcard" type="hidden" th:value="${cust.realIdcard}" />
+		            	<input id="customerName" class="easyui-textbox" type="text"  style="width:130px;"
+		            		name="customerName" data-options="required:true" th:value="${cust.customerName}"></input>
+		            </td>
+		          	<td style="text-align:right;">身份证：</td>
+		             <td style="text-align:left;">
+		            	<input id="customerIdcard" class="easyui-textbox" type="text"  style="width:130px;"
+		            		name="customerIdcard" data-options="required:true" th:value="${cust.customerIdcard}"></input>
+		            </td>
+		        </tr>
+		        <tr>
+		           	<td style="text-align:right;">电话号码：</td>
+		            <td style="text-align:left;">
+		            	<input id="customerPhone" class="easyui-textbox" type="text"  style="width:130px;"
+		            		name="customerPhone" data-options="required:true" th:value="${cust.customerPhone}"></input>
+		            </td>
+		            <td style="text-align:right;">可用积分：</td>
+	            	<td style="text-align:left;">
+		            	<input id="nowUsableIntegral" class="easyui-textbox" style="width:130px;"
+		            		type="text" name="nowUsableIntegral" data-options="editable:false,validType:'double'" th:value="${cust.nowUsableIntegral}"></input>
+		            </td>
+		        </tr>
+		        <tr>
+		            <td style="text-align:right;">VIP：</td>
+		            <td>
+			        	<select id="def1" class="easyui-combobox" name="def1" panelHeight="auto" style="width:100px;"
+								data-options="required:false, editable:false"></input>
+							<option value="Y" th:selected="${cust.def1 == 'Y'}">Y</option>
+							<option value="N" th:selected="${cust.def1 == 'N'}">N</option>
+						</select>
+					</td>
+					<td></td>
+					<td></td>
+					<!-- <td>要求日期:</td>
+		            <td>
+						<input class="easyui-datetimebox" name="requestDate" data-options="required:true,showSeconds:true"
+							   value="date.format('yyyy-MM-dd hh:mm:ss')" style="width:150px">
+					</td> -->
+		        </tr>
+		        <tr>
+		            <td style="text-align:right;">&nbsp;&nbsp;备注： </td>
+		            <td style="text-align:left;" colspan="3">
+		            	<input id="remark" class="easyui-textbox"  style="width:100%;height:90px;" 
+		            		labelPosition="top" multiline="true" name="remark" th:value="${cust.remark}"></input>
+		            </td>
+		        </tr>
+		    </table>
+		</form>
+		<div style="padding:5px;width:100%;text-align:center;">
+		    <button class="easyui-linkbutton" onclick="save(2)">保存</button>
+		    <a href="javascript:void(0)" class="easyui-linkbutton" onclick="cancel()">关闭</a>
+		</div>
+		<div th:include="include::footer"></div>
+		<div>
+			<script type="text/javascript">
+				var hiddenFlag = 1;
+			</script>
+		</div>
+		<!-- 身份证是否显示为*号， 1：显示， 2：不显示 -->
+		<div shiro:hasPermission="integral:customer:hidden:flag">
+			<script type="text/javascript">
+				var hiddenFlag = 2;
+			</script>
+		</div>
+	<script type="text/javascript" src="/js/appjs/integral/customer/customerOpertion.js"></script>
+	</body>
+</html>

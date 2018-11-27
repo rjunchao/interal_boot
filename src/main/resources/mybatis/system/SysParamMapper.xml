@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.rdp.system.mapper.SysParamMapper">
+
+
+	<select id="get" resultType="cn.rdp.system.domain.SysParamDO">
+		select 
+		<include refid="allField"></include>
+	 	from sys_params
+        <where>  
+  		  	dr = 0
+			<if test="paramCode != null and paramCode != ''"> and param_code = #{paramCode} </if>
+  		  	<if test="paramId != null and paramId  != ''"> and param_id = #{paramId } </if>
+  		</where>
+	</select>
+	
+	<select id="findSysParam" resultType="cn.rdp.system.domain.SysParamDO">
+		select 
+		<include refid="allField"></include>
+	 	from sys_params
+        <where>  
+  		  	dr = 0
+  		  	<if test="paramDesc != null and paramDesc != ''"> and param_desc like concat('%', #{paramDesc}, '%') </if>
+  		</where>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by param_code desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="count" resultType="int">
+		select count(*) from sys_params
+		<where>  
+			dr = 0
+			<!-- <if test="paramCode != null and paramCode != ''"> and param_code like concat( #{paramCode}, '%') </if>
+  		  	<if test="paramValue != null and paramValue != ''"> and param_value like concat( #{paramValue}, '%') </if> -->
+  		  	<if test="paramDesc != null and paramDesc != ''"> and param_desc like concat('%', #{paramDesc}, '%') </if>
+  		</where>
+	</select>
+	 
+	 <!-- 
+	 	useGeneratedKeys:设置是否使用JDBC的方法获取主键并赋值到keyProperty的属性中
+	 	oracle不支持
+	  -->
+	<insert id="save" parameterType="cn.rdp.system.domain.SysParamDO" useGeneratedKeys="true" keyProperty="param_id">
+		insert into sys_params
+		(
+			<include refid="allField"></include>	
+		)
+		values
+		(	
+			#{paramId}, 
+			#{paramCode}, 
+			#{paramValue}, 
+			#{paramDesc}, 
+			now(), 
+			0, 
+			#{creater}, 
+			now(),
+			#{modifier}, 
+			#{modifiedTime} 
+		)
+	</insert>
+	 
+	 <sql id="allField">
+	 		 `param_id`,
+             `param_code`,
+             `param_value`,
+             `param_desc`,
+             `ts`,
+             `dr`,
+             `creater`,
+             `create_time`,
+             `modifier`,
+             `modified_time`
+	 </sql>
+	 
+	<update id="update" parameterType="cn.rdp.system.domain.UserDO">
+		update sys_params 
+		<set>
+			<if test="paramValue != null">`param_value` = #{paramValue}, </if>
+			<if test="paramDesc != null">`param_desc` = #{paramDesc}, </if>
+			<if test="modifier != null">`modifier` = #{modifier}, </if>
+			modified_time = now()
+		</set>
+		where 
+		<if test="paramCode != null">`param_code` = #{paramCode}</if>
+	</update>
+	
+	<delete id="delete">
+		delete from sys_params where param_id = #{paramId}
+	</delete>
+	
+	<delete id="batchRemove">
+		delete from sys_params where param_id in 
+		<foreach item="paramId" collection="list" open="(" separator="," close=")">
+			#{paramId}
+		</foreach>
+	</delete>
+
+
+</mapper>

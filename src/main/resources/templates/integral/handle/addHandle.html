@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="zh_CN" xmlns:th="http://www.thymeleaf.org"
+	xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+	<head th:include="include::header">
+	<meta charset="UTF-8">
+		<!-- 
+			author:rjc
+			date:2018年11月24日
+			desc: 处理积分添加
+		-->
+		<title>Insert title here</title>
+	</head>
+	<body>
+	<form id="addHandleForm">
+			<table style="width:600px;text-align:center;">
+				<tr>  
+					<td style="text-align:right;">账号：</td>
+					<td style="text-align:left;">
+						<input id="customerIdcard" name="customerIdcard" type="hidden" th:value="${pk}"></input>
+						 <input id="customerAccount"  name="customerAccount" class="easyui-textbox"
+						 	 data-options="required:true" style="width:150px;" />
+					</td>
+					<td style="text-align:right;">是否存续期：</td>
+					<td style="text-align:left;">
+		                		<select id="duration" class="easyui-combobox" name="duration" panelHeight="auto" style="width:100px;"
+										data-options="required:false, editable:false">
+									<option value="Y">Y</option>
+									<option value="N" selected>N</option>
+								</select>
+					</td>
+				</tr>
+				<tr>  
+					<td style="text-align:right;">账号序号：</td>
+					<td style="text-align:left;">
+						 <input id="accountNumber"  name="accountNumber" class="easyui-textbox"
+						 	 data-options="required:true" style="width:150px;" />
+					</td>
+					<td></td>
+					<td></td>
+				</tr>
+				<tr>  
+					<td style="text-align:right;">存单号：</td>
+					<td style="text-align:left;">
+						<input id="depositReceiptNum" name="depositReceiptNum" 
+							class="easyui-textbox" required="true"  style="width:150px;"/>
+					</td>
+					<td style="text-align:right;">存单金额：</td>
+					<td style="text-align:left;">
+						<input id="depositReceiptAmt" name="depositReceiptAmt" 
+						type="number" 
+							class="easyui-textbox" data-options="required:true,onChange:calcAmtIntegral,validType:'number'" 
+							style="width:150px;" />
+							<!-- ,validType:'number' -->
+					</td>
+				</tr>
+				<tr>
+					<td style="text-align:right;">积分类型：</td>
+					<td style="text-align:left;">
+						  <input id="configId" name="configId" class="easyui-combobox" 
+						   style="width:150px;" 
+		                		data-options="
+		                			url:'/integral/config/find/1',
+			                		method:'get',
+									valueField:'id',
+									textField:'text',
+									panelHeight:'auto',
+									required:true
+									,onChange:calcConfigIntegral
+									"
+		                		/>
+		                		<!--  -->
+		                	<input id="configTypeName" name="configTypeName" type="hidden" />
+		                	<input id="integralCalcNum" name="integralCalcNum" type="hidden" />
+					</td>
+					<td style="text-align:right;">积分：</td>
+					<td style="text-align:left;">
+						 <input id="customerIntegral" name="customerIntegral"  type="number"  disabled="true"
+						 	style="width:150px;"/>
+					</td>
+				</tr>	
+				<tr>
+					<td></td>
+					<td style="text-align:center;">
+						<input id="isShowCap23" type="checkbox" /> 显示资金来源2、3
+					</td>
+					<td></td>
+				</tr>
+				<tr>  
+					<td style="text-align:right;">资金来源1：</td>
+					<td style="text-align:left;">
+						  <input  class="easyui-combobox" valueField="id" textField="text" style="width:150px;"
+						  id="capitalSource1" name="capitalSource1"
+		                	 data-options="
+		                			url:'/integral/config/find/4',
+			                		method:'get',
+									valueField:'id',
+									textField:'text',
+									panelHeight:'auto',
+									required:true
+									"/>
+					</td>
+					<td style="text-align:right;">资金来源金额1：</td>
+					<td style="text-align:left;">
+						<input id="capitalSourceAmt1" name="capitalSourceAmt1" 
+						type="number"  data-options="required:true" 
+							style="width:150px;" />
+					</td>
+				</tr>
+				<tr id="hiddenCapTr2" class="hiddenTr"> 
+					<td style="text-align:right;">资金来源2：</td>
+					<td style="text-align:left;">
+						  <input  class="easyui-combobox" valueField="id" textField="text" style="width:150px;"
+						  id="capitalSource2" name="capitalSource2"
+		                	 data-options="
+		                			url:'/integral/config/find/4',
+			                		method:'get',
+									valueField:'id',
+									textField:'text',
+									panelHeight:'auto'
+									"/>
+					</td>
+					<td style="text-align:right;">资金来源金额2：</td>
+					<td style="text-align:left;">
+						<input id="capitalSourceAmt2" name="capitalSourceAmt2"  type="number" 
+						 	style="width:150px;" value="0.0"/>
+						
+					</td>
+				</tr>
+				<tr id="hiddenCapTr3" class="hiddenTr">
+					<td style="text-align:right;">资金来源3：</td>
+					<td style="text-align:left;">
+						  <input  class="easyui-combobox" valueField="id" textField="text" style="width:150px;"
+						  id="capitalSource3" name="capitalSource3"
+		                	 data-options="
+		                			url:'/integral/config/find/4',
+			                		method:'get',
+									valueField:'id',
+									textField:'text',
+									panelHeight:'auto'
+									"/>
+					</td>
+					<td style="text-align:right;">资金来源金额3：</td>
+					<td style="text-align:left;">
+						<input id="capitalSourceAmt3" name="capitalSourceAmt3"  type="number" 
+						 	style="width:150px;" value="0.0"/>
+					</td>
+				</tr>
+				<tr>
+					<td></td>
+					<td style="text-align:center;">
+						<input id="isShowPeople23" type="checkbox" /> 显示营销人2、3
+					</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td style="text-align:right;">营销人1：</td>
+					<td style="text-align:left;">
+						<input id="marketingPeople1" name="marketingPeople1" 
+							data-options="required:true"
+							class="easyui-textbox" style="width:150px;"/>
+					</td>
+					<td style="text-align:right;">营销金额1：</td>
+					<td style="text-align:left;">
+						
+						<input id="marketingPeopleAmt1" name="marketingPeopleAmt1" 
+							data-options="required:true" type="number"
+							 style="width:150px;" />
+					</td>
+				</tr>
+				<tr id="hiddenPeopTr2" class="hiddenTr">  
+					<td style="text-align:right;">营销人2：</td>
+					<td style="text-align:left;">
+						<input id="marketingPeople2" name="marketingPeople2" 
+							class="easyui-textbox" style="width:150px;"/>
+					</td>
+					<td style="text-align:right;">营销金额2：</td>
+					<td style="text-align:left;">
+						<input id="marketingPeopleAmt2" name="marketingPeopleAmt2" 
+							type="number"  style="width:150px;" value="0.0"/>
+					</td>
+				</tr>
+				<tr id="hiddenPeopTr3" class="hiddenTr">  
+					<td style="text-align:right;">营销人3：</td>
+					<td style="text-align:left;">
+						<input id="marketingPeople3" name="marketingPeople3" 
+							class="easyui-textbox" style="width:150px;"/>
+					</td>
+					<td style="text-align:right;">营销金额3：</td>
+					<td style="text-align:left;">
+						<input id="marketingPeopleAmt3" name="marketingPeopleAmt3" 
+							type="number"  style="width:150px;" value="0.0"/>
+					</td>
+				</tr>
+				<tr>
+		            <td style="text-align:right;">&nbsp;&nbsp;备注： </td>
+		            <td style="text-align:left;" colspan="3">
+		            	<input id="remark" class="easyui-textbox" style="width:470px;height:60px;" 
+		            		labelPosition="top" multiline="true" name="remark"></input>
+		            </td>
+		        </tr>
+			</table>
+		</form>
+		<div style="padding:5px;width:100%;text-align:center;">
+		    <button class="easyui-linkbutton" onclick="addSave()">保存</button>
+		    <a href="javascript:void(0)" class="easyui-linkbutton" onclick="cancel()">关闭</a>
+		</div>
+		<div th:include="include::footer"></div>
+		<script type="text/javascript" src="/js/appjs/integral/handller/integralHandller.js"></script>
+	</body>
+</html>

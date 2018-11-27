@@ -1,0 +1,328 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.rdp.integral.handle.mapper.IntegralHanleMapper">
+	
+	<!-- 查询vip兑换次数 -->
+	<select id="queryVipIntegralByYear" resultType="int">
+		SELECT COUNT(*) FROM gd_vip_integral_detail WHERE
+				give_year= #{nowYear}
+		and config_id = #{configId}
+	 	AND customer_idcard= #{customerIdCard}
+	
+	</select>
+	<!-- 查询积分兑换的序号 -->
+	<select id="querySubNumber" resultType="java.lang.String">
+		SELECT MAX(CONVERT(sub_num,DECIMAL)) 
+		FROM gd_sub_integral_detail WHERE
+				 sub_year=#{subYear}  
+				AND customer_idcard=#{customerIdCard}
+	</select>
+	
+	<select id="findAddIntegralDetail" resultType="int">
+		<include refid="addIntegralDetailField"></include>
+		<where>
+			t.dr = 0
+			<if test="customerAccount != null and customerAccount != ''"> and customer_account = #{customerAccount}</if>
+			<if test="accountNumber != null and accountNumber != ''"> and account_number = #{accountNumber}</if>
+		</where>
+	</select>
+	
+	<insert id="addVipIntegralDetail" >
+		insert into gd_vip_integral_detail(
+		  `pk_integral_detail`,
+		  `customer_idcard`,
+		  `customer_integral`,
+		  `ts`,
+		  `creater`,
+		  `create_org`,
+		  `create_time`,
+		  dr,
+		  config_id,
+		  remark,
+          `give_year`,
+          `give_type`,
+          `give_integral`)
+		  values
+		  (
+		  	#{pkIntegralDetail},
+		  	#{customerIdcard},
+		  	#{customerIntegral},
+		  	now(),
+		  	#{creater},
+		  	#{createOrg},
+		  	now(),
+		  	0,
+		  	#{configId},
+		  	#{remark},
+		  	#{giveYear},
+		  	#{giveType},
+		  	#{giveIntegral}
+		  )
+	</insert>
+	
+	<insert id="addSubIntegralDetail">
+		insert into gd_sub_integral_detail(
+		  	 `config_id`,
+             `pk_integral_detail`,
+             `customer_idcard`,
+             `customer_integral`,
+             `dr`,
+             `ts`,
+             `creater`,
+             `create_org`,
+             `create_time`,
+             `sub_year`,
+             `sub_num`,
+             `sub_type_integral`,
+             `sub_total`,
+             `sub_prod`,
+             `remark`
+		  )
+		  
+		  values(
+		  	#{configId},
+		  	#{pkIntegralDetail},
+		  	#{customerIdcard},
+		  	#{customerIntegral},
+		  	'0',
+		  	now(),
+		  	#{creater},
+		  	#{createOrg},
+		  	now(),
+		  	#{subYear},
+		  	#{subNum},
+		  	#{subTypeIntegral},
+		  	#{subTotal},
+		  	#{subProd},
+		  	#{remark}
+		  )
+	</insert>
+	
+	<insert id="addAddIntegralDetail">
+		INSERT INTO `gd_add_integral_detail`
+            (`config_id`,
+             `pk_integral_detail`,
+             `customer_idcard`,
+             `customer_integral`,
+             `customer_account`,
+             `deposit_receipt_num`,
+             `deposit_receipt_amt`,
+             `dr`,      
+             `ts`,
+             `creater`,
+             `create_org`,
+             `create_time`,
+             `marketing_people1`,
+             `marketing_people2`,
+             `marketing_people3`,
+             `marketing_people_amt1`,
+             `marketing_people_amt2`,
+             `marketing_people_amt3`,
+             `capital_source1`,
+             `capital_source2`,
+             `capital_source3`,
+             `capital_source_amt1`,
+             `capital_source_amt2`,
+             `capital_source_amt3`,
+             `duration`,
+             `account_number`,
+             `config_type_name`,
+             `integral_calc_num`,
+             `remark`)
+		VALUES (
+			#{configId},
+        	#{pkIntegralDetail},
+       		#{customerIdcard},
+       		#{customerIntegral},
+        	#{customerAccount},
+        	#{depositReceiptNum},
+      		#{depositReceiptAmt},
+        	'0',
+        	NOW(),
+        	#{creater},
+        	#{createOrg},
+        	NOW(),
+        	#{marketingPeople1},
+        	#{marketingPeople2},
+        	#{marketingPeople3},
+        	#{marketingPeopleAmt1},
+		  	#{marketingPeopleAmt2},
+		  	#{marketingPeopleAmt3},
+        	#{capitalSource1},
+		  	#{capitalSource2},
+		  	#{capitalSource3},
+		  	#{capitalSourceAmt1},
+		  	#{capitalSourceAmt2},
+		  	#{capitalSourceAmt3},
+        	#{duration},
+       		#{accountNumber},
+        	#{configTypeName},
+        	#{integralCalcNum},
+        	#{remark}
+        )
+	</insert>
+	
+	
+	<select id="findVipIntegralDetailPage" resultType="cn.rdp.integral.domain.VipIntegralDetailVO">
+		SELECT
+		  t.`pk_integral_detail`,
+		  t.`customer_idcard`,
+		  t.`customer_integral`,
+		  t.`ts`,
+		  t.`creater`,
+		  t.`create_time`,
+		  t.config_id,
+		  t.give_year,
+		  t.remark,
+		  t.`give_year`,
+          t.`give_type`,
+          t.`give_integral`,
+		  c.`customer_name`,
+		  u.`name` AS create_name,
+		  d.`name` AS dept_name
+		FROM `gd_vip_integral_detail` t
+			LEFT JOIN gd_customer_info c ON t.`customer_idcard` = c.`customer_idcard`
+			LEFT JOIN sys_user u ON t.`creater` =  u.`username`
+			LEFT JOIN sys_dept d ON t.`create_org` = d.`dept_id`
+		<where>  
+  		  	t.dr = 0
+  		  	<if test="isFuzzyQuery == 2 and isFuzzyQuery != ''">
+  		  		 <!-- 模糊查询 -->
+                <if test="customerIdcard != null and customerIdcard != ''">and t.customer_idcard like concat('%', #{customerIdcard}, '%') </if>
+  		  	</if>
+  		  	<if test="isFuzzyQuery == 1 and isFuzzyQuery != ''">
+                <!-- 全部匹配查询 -->
+                <if test="customerIdcard != null and customerIdcard != ''">and t.customer_idcard =  #{customerIdcard}</if>
+  		  	</if>
+            <if test="startDate != null and startDate != ''">and t.ts <![CDATA[ >=  ]]> #{startDate} </if>
+            <if test="endDate != null and endDate != ''">and t.ts  <![CDATA[ <=  ]]>  #{endDate} </if>
+  		</where>
+  		ORDER BY t.ts DESC
+  		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+	<select id="findSubIntegralDetailPage" resultType="cn.rdp.integral.domain.SubIntegralDetailVO">
+		SELECT 
+		  t.`pk_integral_detail`,
+		  t.`customer_idcard`,
+		  t.`customer_integral`,
+		  t.`ts`,
+		  t.`creater`,
+		  t.`create_time`,
+		  t.config_id,
+		  t.`sub_year`,
+          t.`sub_num`,
+          t.`sub_type_integral`,
+          t.`sub_total`,
+          t.`sub_prod`,
+		  c.`customer_name`,
+		  u.`name` AS create_name,
+		  d.`name` AS dept_name 
+		FROM
+		  `gd_sub_integral_detail` t 
+		  LEFT JOIN gd_customer_info c ON t.`customer_idcard` = c.`customer_idcard` 
+		  LEFT JOIN sys_user u ON t.`creater` = u.`username` 
+		  LEFT JOIN sys_dept d ON t.`create_org` = d.`dept_id`	
+		<where>  
+  		  	t.dr = 0
+  		  	<if test="isFuzzyQuery == 2 and isFuzzyQuery != ''">
+  		  		 <!-- 模糊查询 -->
+                <if test="customerIdcard != null and customerIdcard != ''">and t.customer_idcard like concat('%', #{customerIdcard}, '%') </if>
+  		  	</if>
+  		  	<if test="isFuzzyQuery == 1 and isFuzzyQuery != ''">
+                <!-- 全部匹配查询 -->
+                <if test="customerIdcard != null and customerIdcard != ''">and t.customer_idcard =  #{customerIdcard}</if>
+  		  	</if>
+            <if test="startDate != null and startDate != ''">and t.ts <![CDATA[ >=  ]]> #{startDate} </if>
+            <if test="endDate != null and endDate != ''">and t.ts  <![CDATA[ <=  ]]>  #{endDate} </if>
+  		</where>
+  		ORDER BY t.ts DESC
+  		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+	<select id="findAddIntegralDetailPage" resultType="cn.rdp.integral.domain.AddIntegralDetailVO">
+		<include refid="addIntegralDetailField"></include>		
+		<where>  
+  		  	t.dr = 0
+  		  	<if test="isFuzzyQuery == 2 and isFuzzyQuery != ''">
+  		  		 <!-- 模糊查询 -->
+                <if test="customerIdcard != null and customerIdcard != ''">and t.customer_idcard like concat('%', #{customerIdcard}, '%') </if>
+  		  	</if>
+  		  	<if test="isFuzzyQuery == 1 and isFuzzyQuery != ''">
+                <!-- 全部匹配查询 -->
+                <if test="customerIdcard != null and customerIdcard != ''">and t.customer_idcard =  #{customerIdcard}</if>
+  		  	</if>
+            <if test="startDate != null and startDate != ''">and t.ts <![CDATA[ >=  ]]> #{startDate} </if>
+            <if test="endDate != null and endDate != ''">and t.ts  <![CDATA[ <=  ]]>  #{endDate} </if>
+  		</where>
+  		ORDER BY t.ts DESC
+  		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+	<sql id="addIntegralDetailField">
+		SELECT 
+			t.`pk_integral_detail`,
+			  t.`customer_idcard`,
+			  t.`customer_integral`,
+			  t.`customer_account`,
+			  t.`deposit_receipt_num`,
+			  t.`deposit_receipt_amt`,
+			  t.`ts`,
+			  t.`creater`,
+			  t.`create_org`,
+			  t.`create_time`,
+			  t.`marketing_people1`,
+			  t.`marketing_people2`,
+			  t.`marketing_people3`,
+			  t.`marketing_people_amt1`,
+			  t.`marketing_people_amt2`,
+			  t.`marketing_people_amt3`,
+			  t.`capital_source1`,
+			  t.`capital_source2`,
+			  t.`capital_source3`,
+			  t.`capital_source_amt1`,
+			  t.`capital_source_amt2`,
+			  t.`capital_source_amt3`,
+			  t.`duration`,
+			  t.`config_id`,
+			  t.`account_number`,
+			  t.`config_type_name`,
+			  t.`integral_calc_num`,
+			  t.`remark`,
+			  c.`customer_name`,
+			  u.`name` AS create_name,
+			  d.`name` AS dept_name 
+		FROM
+		  `gd_add_integral_detail` t 
+		  LEFT JOIN gd_customer_info c ON t.`customer_idcard` = c.`customer_idcard` 
+		  LEFT JOIN sys_user u ON t.`creater` = u.`username` 
+		  LEFT JOIN sys_dept d  ON t.`create_org` = d.`dept_id` 
+	</sql>
+
+	
+ 	<select id="count" resultType="int" parameterType="java.util.Map">
+		select count(*) from ${table_name}
+		<where>  
+  		  	dr = 0
+  		  	<if test="isFuzzyQuery == 2 and isFuzzyQuery != ''">
+  		  		 <!-- 模糊查询 -->
+                <if test="customerIdcard != null and customerIdcard != ''">and customer_idcard like concat('%', #{customerIdcard}, '%') </if>
+  		  	</if>
+  		  	<if test="isFuzzyQuery == 1 and isFuzzyQuery != ''">
+                <!-- 全部匹配查询 -->
+                <if test="customerIdcard != null and customerIdcard != ''">and customer_idcard =  #{customerIdcard}</if>
+  		  	</if>
+            <if test="startDate != null and startDate != ''">and ts <![CDATA[ >=  ]]> #{startDate} </if>
+            <if test="endDate != null and endDate != ''">and ts  <![CDATA[ <=  ]]>  #{endDate} </if>
+  		</where>
+	</select>
+
+	
+</mapper>

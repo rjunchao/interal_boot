@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.rdp.integral.config.mapper.IntegralConfigMapper">
+
+
+	
+	<!-- 条件查询，不分页 -->
+	<select id="find" resultType="cn.rdp.integral.domain.IntegralConfigVO">
+		SELECT 
+			<include refid="allField"></include>
+		FROM gd_integral_config 
+		<where>
+			dr = 0
+			<if test = "integralType != null and integralType != ''"> and integral_type = #{integralType}</if>
+			<if test = "integralCoefficient != null and integralCoefficient != ''"> and integral_coefficient = #{integralCoefficient}</if>
+			<if test = "integralTypeName != null and integralTypeName != ''"> and integral_type_name = #{integralTypeName}</if>
+		</where>
+	</select>
+	
+	<select id="get" resultType="cn.rdp.integral.domain.IntegralConfigVO">
+		SELECT 
+			<include refid="allField"></include>
+		FROM gd_integral_config 
+		WHERE
+			dr = 0
+  		  	and integral_type = #{type}
+  		  	and pk_gd_integral_config = #{id}
+				
+	</select>
+	
+	<select id="findIntegralConfig" resultType="cn.rdp.integral.domain.IntegralConfigVO">
+		select 
+		<include refid="allField"></include>
+	 	from gd_integral_config
+        <where>  
+  		  	dr = 0
+  		  	and integral_type = #{integralType}
+  		  	<if test="integralTypeName != null and integralTypeName != ''"> and integral_type_name like concat('%', #{integralTypeName}, '%') </if>
+  		</where>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by integral_type_name desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="count" resultType="int">
+		select count(*) from gd_integral_config
+		<where>  
+			dr = 0
+  		  	and integral_type = #{integralType}
+  		  	<if test="integralTypeName != null and integralTypeName != ''"> and integral_type_name like concat('%', #{integralTypeName}, '%') </if>
+  		</where>
+	</select>
+	 
+	 <!-- 
+	 	useGeneratedKeys:设置是否使用JDBC的方法获取主键并赋值到keyProperty的属性中
+	 	oracle不支持
+	  -->
+	<insert id="addIntegralConfig" parameterType="cn.rdp.integral.domain.IntegralConfigVO" >
+		insert into gd_integral_config
+		(
+			<include refid="allField"></include>	
+		)
+		values
+		(	
+			#{pkGdIntegralConfig}, 
+			#{integralTypeName}, 
+			#{integral}, 
+			#{integralType}, 
+			#{def1}, 
+			#{def2}, 
+			#{def3}, 
+			#{def4}, 
+			#{def5}, 
+			#{def6}, 
+			#{integralCoefficient}, 
+			#{integralYear}, 
+			now(), 
+			#{creater}, 
+			now(), 
+			0, 
+			#{modifier}, 
+			#{modifiedTime} 
+		)
+	</insert>
+	 
+	 <sql id="allField">
+	 		 `pk_gd_integral_config`,
+             `integral_type_name`,
+             `integral`,
+             `integral_type`,
+             `def1`,
+             `def2`,
+             `def3`,
+             `def4`,
+             `def5`,
+             `def6`,
+             `integral_coefficient`,
+             `integral_year`,
+             `create_time`,
+             `creater`,
+             `ts`,
+             `dr`,
+             `modified_time`,
+             `modifier`
+	 </sql>
+	 
+	<update id="updateIntegralConfig" parameterType="cn.rdp.integral.domain.IntegralConfigVO">
+		update gd_integral_config 
+		<set>
+			
+			def2 = #{def2},
+			modifier = #{modifier},
+			modified_time = now(),
+			integral_type_name = #{integralTypeName},
+			integral_coefficient = #{integralCoefficient}
+			
+		</set>
+		where 
+			integral_type = #{integralType}
+			and pk_gd_integral_config = #{pkGdIntegralConfig}
+	</update>
+	
+	<delete id="deleteIntegralConfig">
+		delete from gd_integral_config where pk_gd_integral_config  = #{pkGdIntegralConfig}
+	</delete>
+	
+	<delete id="batchDeleteIntegralConfig">
+		delete from gd_integral_config where integral_type=#{type}  and pk_gd_integral_config in 
+		<foreach item="pkGC" collection="ids" open="(" separator="," close=")">
+			#{pkGC}
+		</foreach>
+	</delete>
+
+
+</mapper>

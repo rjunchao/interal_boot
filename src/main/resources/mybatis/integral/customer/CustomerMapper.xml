@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.rdp.integral.cust.mapper.CustomerMapper">
+
+	
+	<select id="get" resultType="cn.rdp.integral.domain.CustomerVO">
+		SELECT 
+			<include refid="allField"></include>
+			,customer_idcard AS real_idcard
+		FROM gd_customer_info 
+		WHERE
+			dr = 0
+  		  	<if test="pkCustomerInfo != null and pkCustomerInfo != ''">and pk_customer_info =  #{pkCustomerInfo}</if>
+  		  	<if test="customerIdcard != null and customerIdcard != ''">and customer_idcard =  #{customerIdcard}</if>
+            <if test="customerPhone != null and customerPhone != ''">and customer_phone = #{customerPhone}</if>   
+				
+	</select>
+	
+	<select id="findCustomer" resultType="cn.rdp.integral.domain.CustomerVO">
+		select 
+			c.`pk_customer_info`,
+			c.`customer_name`,
+			c.`customer_idcard`,
+			c.`customer_phone`,
+			c.`recommend_phone`,
+			c.`now_usable_integral`,
+			c.`input_org`,
+			c.`ts`,
+			c.`def2`,
+			c.`def3`,
+			c.`def4`,
+			c.`dr`,
+			c.`def1`,
+			c.`creater`,
+			c.`create_org`,
+			c.`create_time`,
+			c.`modifier`,
+			c.`modified_time`,
+			c.remark
+			,c.customer_idcard AS real_idcard
+			,d.`name` AS dept_name
+	 	from gd_customer_info c
+	 	left join sys_dept d ON d.dept_id = c.`create_org`
+        <where>  
+  		  	dr = 0
+  		  	<if test="isFuzzyQuery == 2 and isFuzzyQuery != ''">
+  		  		 <!-- 模糊查询 -->
+                <if test="customerName != null and customerName != ''">and customer_name like concat('%', #{customerName}, '%') </if>
+                <if test="customerIdcard != null and customerIdcard != ''">and customer_idcard like concat('%', #{customerIdcard}, '%') </if>
+                <if test="customerPhone != null and customerPhone != ''">and customer_phone like concat('%', #{customerPhone}, '%') </if>
+                <if test="startDate != null and startDate != ''">and ts <![CDATA[ >=  ]]> #{startDate} </if>
+                <if test="endDate != null and endDate != ''">and ts  <![CDATA[ <=  ]]>  #{endDate} </if>
+  		  	</if>
+  		  	<if test="isFuzzyQuery == 1 and isFuzzyQuery != ''">
+                <!-- 全部匹配查询 -->
+               	<if test="customerName != null and customerName != ''">and customer_name = #{customerName}</if>
+                <if test="customerIdcard != null and customerIdcard != ''">and customer_idcard =  #{customerIdcard}</if>
+                <if test="customerPhone != null and customerPhone != ''">and customer_phone = #{customerPhone}</if>
+  		  	</if>
+  		</where>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by customer_name desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="count" resultType="int" parameterType="java.util.Map">
+		select count(*) from gd_customer_info
+		<where>  
+  		  	dr = 0
+  		  	<if test="isFuzzyQuery == 2 and isFuzzyQuery != ''">
+  		  		 <!-- 模糊查询 -->
+                <if test="customerName != null and customerName != ''">and customer_name like concat('%', #{customerName}, '%') </if>
+                <if test="customerIdcard != null and customerIdcard != ''">and customer_idcard like concat('%', #{customerIdcard}, '%') </if>
+                <if test="customerPhone != null and customerPhone != ''">and customer_phone like concat('%', #{customerPhone}, '%') </if>
+                <if test="startDate != null and startDate != ''">and ts <![CDATA[ >=  ]]> #{startDate} </if>
+                <if test="endDate != null and endDate != ''">and ts  <![CDATA[ <=  ]]>  #{endDate} </if>
+  		  	</if>
+  		  	<if test="isFuzzyQuery == 1 and isFuzzyQuery == ''">
+                <!-- 全部匹配查询 -->
+               	<if test="customerName != null and customerName != ''">and customer_name = #{customerName}</if>
+                <if test="customerIdcard != null and customerIdcard != ''">and customer_idcard =  #{customerIdcard}</if>
+                <if test="customerPhone != null and customerPhone != ''">and customer_phone = #{customerPhone}</if>
+  		  	</if>
+  		</where>
+	</select>
+	 
+	 <!-- 
+	 	useGeneratedKeys:设置是否使用JDBC的方法获取主键并赋值到keyProperty的属性中
+	 	oracle不支持
+	  -->
+	<insert id="addCustomer" parameterType="cn.rdp.integral.domain.CustomerVO" >
+		insert into gd_customer_info
+		(
+			<include refid="allField"></include>	
+		)
+		values
+		(	
+			#{pkCustomerInfo}, 
+			#{customerName}, 
+			#{customerIdcard}, 
+			#{customerPhone}, 
+			#{recommendPhone}, 
+			0, 
+			#{inputOrg}, 
+			now(), 
+			#{def2}, 
+			#{def3}, 
+			#{def4}, 
+			0,
+			#{def1}, 
+			#{creater}, 
+			#{createOrg}, 
+			now(), 
+			#{modifier}, 
+			#{modifiedTime},
+			#{remark}
+			
+		)
+	</insert>
+	 
+	 <sql id="allField">
+	 		  `pk_customer_info`,
+			  `customer_name`,
+			  `customer_idcard`,
+			  `customer_phone`,
+			  `recommend_phone`,
+			  `now_usable_integral`,
+			  `input_org`,
+			  `ts`,
+			  `def2`,
+			  `def3`,
+			  `def4`,
+			  `dr`,
+			  `def1`,
+			  `creater`,
+			  `create_org`,
+			  `create_time`,
+			  `modifier`,
+			  `modified_time`,
+			  remark
+	 </sql>
+	 
+	<update id="updateCustomer" parameterType="cn.rdp.integral.domain.CustomerVO">
+		update gd_customer_info 
+		<set>
+			`customer_phone` = #{customerPhone},
+			`customer_name`=#{customerName}, 
+			`remark`=#{remark}, 
+			`customer_idcard` = #{customerIdcard},
+			`modified_time`= now(), 
+			`modifier` = #{modifier} , 
+			def1=#{def1},
+			modified_time = now(),
+			
+		</set>
+		where 
+			pk_customer_info = #{pkCustomerInfo}
+	</update>
+	<update id="updateCustomerIntegral" parameterType="cn.rdp.integral.domain.CustomerVO">
+		update gd_customer_info 
+		<set>
+			now_usable_integral = #{nowUsableIntegral}
+		</set>
+		where 
+			pk_customer_info = #{pkCustomerInfo}
+	</update>
+	
+	<delete id="deleteCustomer">
+		delete from gd_customer_info where dr=0
+		<if test="pkCustomerInfo != null and pkCustomerInfo != ''">and pk_customer_info =  #{pkCustomerInfo}</if>
+ 		<if test="customerIdcard != null and customerIdcard != ''">and customer_idcard =  #{customerIdcard}</if>
+        <if test="customerPhone != null and customerPhone != ''">and customer_phone = #{customerPhone}</if>  
+	</delete>
+	
+
+
+</mapper>

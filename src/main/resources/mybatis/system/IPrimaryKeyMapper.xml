@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.rdp.system.mapper.IPrimaryKeyMapper">
+	
+	<!-- 查询表 -->
+	<select id="findTableInfo" parameterType="java.util.Map" resultType="cn.rdp.system.domain.PrimaryKeyVO">
+		SELECT
+			`id`,
+		  	`table_name`,
+		  	`init_value`,
+		  	`step_value`,
+		  	primary_name
+		FROM `primary_table` WHERE TABLE_NAME = #{tableName, jdbcType=VARCHAR}
+	</select>
+	<!-- 查詢主键最大值 -->
+	<select id="findTableMaxValue" parameterType="java.util.Map" resultType="java.lang.Integer">
+		${sql}
+	</select>
+</mapper>

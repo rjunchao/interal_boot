@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh_CN" xmlns:th="http://www.thymeleaf.org"
+	xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+	<meta charset="utf-8">
+	<head  th:include="include::header">
+		<title>客户管理</title>
+		  <!-- 引入EasyUI CSS -->
+	</head>
+	<body>
+		<!-- 工具栏 -->
+		<div  id="toolbar_custom" style=" height: 70px; padding:5px; background: #fafafa;">  
+			<form id="paramFrom">
+				<input id="customerName" class="easyui-textbox" name="customerName" style="width:200px;align:left;" data-options="label:'客户名',">
+		        <input id="customerIdcard" class="easyui-textbox" name="customerIdcard" style="width:200px;" data-options="label:'身份证',">
+		        <input id="customerPhone" class="easyui-textbox" name="customerPhone" style="width:200px;" data-options="label:'电话号码',">
+		        <input shiro:hasPermission="integral:customer:hidden:flag" id="startDate" class="easyui-datetimebox"  name="startDate" style="width:200px;" data-options="label:'开始日期',showSeconds:'true'">
+		        <input shiro:hasPermission="integral:customer:hidden:flag" id="endDate" class="easyui-datetimebox" name="endDate" style="width:200px;align:left;" data-options="label:'结束日期',showSeconds:'true'">
+	        </form>
+			<!--  -->
+			<a shiro:hasPermission="integral:customer:add" href="#" class="easyui-linkbutton" plain="true" icon="icon-add" onclick="custom_add()">新增</a> 
+			<a shiro:hasPermission="integral:customer:edit" href="#" class="easyui-linkbutton" plain="true" icon="icon-edit" onclick="customer_edit()">编辑</a>
+			<a shiro:hasPermission="integral:customer:remove" href="#" class="easyui-linkbutton" plain="true" icon="icon-cancel" onclick="customer_del()">删除</a>
+			<a href="#" class="easyui-linkbutton" plain="true" icon="icon-reload" onclick="searchCustomer()">查询</a> 
+			<a shiro:hasPermission="integral:customer:integral:add" href="#" class="easyui-linkbutton" plain="true" icon="icon-undo" onclick="addHandle()">积分添加</a> 
+			<a shiro:hasPermission="integral:customer:integral:vip" href="#" class="easyui-linkbutton" plain="true" onclick="vipHandle()">vip积分赠送</a>
+			<a shiro:hasPermission="integral:customer:integral:sub" href="#" class="easyui-linkbutton" plain="true" icon="icon-redo" onclick="subHandle()">积分兑换</a>
+			<a shiro:hasPermission="integral:customer:export" href="#" class="easyui-linkbutton" plain="true" icon="icon-print" onclick="customer_del()">客户信息导出</a>
+	          
+		</div>
+		<!-- 数据显示 -->
+		 <table class="easyui-datagrid" id="customDataGrid" style="width:100%;height:490px;"
+		 		data-options="singleSelect:true,
+		 		collapsible:true,
+				pagination:true,
+				rownumbers:true,
+				url:'', 
+				method:'post',
+				pageSize:10, 
+				fitColumns:false,
+				toolbar:toolbar_custom">
+		    <thead>
+		        <tr>
+		        	<th data-options="field:'pkCustomerInfo',checkbox:true">序号</th>
+		        	<th data-options="field:'customerName',width:80,align:'left'">客户名称</th>
+		            <th data-options="field:'customerIdcard',width:150,align:'left'">身份证</th>
+		            <th data-options="field:'customerPhone',width:100,align:'left'">电话号码</th>
+		            <th data-options="field:'nowUsableIntegral',width:60,align:'left'">可用积分</th>
+		            <th data-options="field:'def1',width:60,align:'left'">VIP</th>
+		            <th data-options="field:'remark',width:120,align:'left'">备注</th>
+		            <th data-options="field:'creater',width:70,align:'left'">创建人</th>
+		            <th data-options="field:'createTime',width:130,align:'left'">创建时间</th>
+		            <th data-options="field:'deptName',width:150,align:'left'">创建机构</th>
+		            <th data-options="field:'modifier',width:70,align:'left'">修改人</th>
+		            <th data-options="field:'modifiedTime',width:130,align:'left'">修改时间</th>
+		        </tr>
+		    </thead>
+		</table> 
+		<div th:include="include::footer"></div>
+		<div>
+			<script type="text/javascript">
+				var hiddenFlag = 1;
+			</script>
+		</div>
+		<!-- 身份证是否显示为*号， 1：显示， 2：不显示 -->
+		<div shiro:hasPermission="integral:customer:hidden:flag">
+			<script type="text/javascript">
+				var hiddenFlag = 2;
+			</script>
+		</div>
+		<script type="text/javascript" src="/js/appjs/integral/customer/customerEasyUI.js"></script>
+	</body>
+</html>

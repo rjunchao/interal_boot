@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="zh_CN" xmlns:th="http://www.thymeleaf.org"
+	xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+	<head th:include="include::header">
+	<meta charset="UTF-8">
+		<!-- 
+			author:rjc
+			date:2018年11月24日
+			desc: 处理积分兑换
+		-->
+		<title>Insert title here</title>
+	</head>
+	<body>
+		<div id="subToolbar" style="height:auto">
+			<a href="javascript:void(0)" class="easyui-linkbutton" data-options="iconCls:'icon-add',plain:true" onclick="appendRow()">增行</a>
+			<a href="javascript:void(0)" class="easyui-linkbutton" data-options="iconCls:'icon-edit',plain:true" onclick="editRow()">编辑</a>
+			<a href="javascript:void(0)" class="easyui-linkbutton" data-options="iconCls:'icon-remove',plain:true" onclick="delRow()">删行</a>
+			<a href="javascript:void(0)" class="easyui-linkbutton" data-options="iconCls:'icon-save',plain:true" onclick="subSave()">保存</a>
+			<a href="javascript:void(0)" class="easyui-linkbutton" data-options="plain:true" onclick="cancel()">关闭</a>
+		</div>
+		<table id="subDatagrid" class="easyui-datagrid" style="width:100%;height:auto"
+				data-options="
+					iconCls: 'icon-edit',
+					singleSelect: true,
+					toolbar: '#subToolbar',
+					method: 'post',
+					onClickCell: onClickCell,
+					onEndEdit: onEndEdit
+				">
+			<thead>
+				<tr>
+				<!-- ,onChange:subIntegral -->
+					<th data-options="field:'configId',width:100,
+							editor:{
+								type:'combobox',
+								options:{
+									url:'/integral/config/find/1',
+			                		method:'get',
+									valueField:'id',
+									textField:'text',
+									panelHeight:'auto',
+									required:true
+								}
+							}">商品</th>
+					<th data-options="field:'subTotal',width:80,align:'left',editor:'numberbox'">数量</th>
+					<th data-options="field:'customerIntegral',editable:false,align:'left',width:80">积分</th>
+					<th data-options="field:'remark',width:130,editor:'textbox'">备注</th>
+				</tr>
+			</thead>
+		</table>
+		<div th:include="include::footer"></div>
+		<script type="text/javascript" src="/js/appjs/integral/handller/integralHandller.js"></script>
+	</body>
+</html>

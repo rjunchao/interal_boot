@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="zh_CN" xmlns:th="http://www.thymeleaf.org"
+	xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+	<head th:include="include::header">
+	<meta charset="UTF-8">
+		<!-- 
+			author:rjc
+			date:2018年11月24日
+			desc: 处理积分兑换
+		-->
+		<title>处理积分兑换</title>
+	</head>
+	<body>
+		<input id="customerIdcard" name="customerIdcard" type="hidden" th:value="${pk}"></input>
+		<div id="tb" style="height:auto">
+			<a href="javascript:void(0)" class="easyui-linkbutton" data-options="iconCls:'icon-add',plain:true" onclick="append()">增行</a>
+			<a href="javascript:void(0)" class="easyui-linkbutton" data-options="iconCls:'icon-remove',plain:true" onclick="removeit()">删行</a>
+			<!-- <a href="javascript:void(0)" class="easyui-linkbutton" data-options="iconCls:'icon-save',plain:true" onclick="accept()">暂存</a> -->
+			<a href="javascript:void(0)" class="easyui-linkbutton" data-options="iconCls:'icon-search',plain:true" onclick="subSave()">保存</a>
+			<a href="javascript:void(0)" class="easyui-linkbutton" data-options="plain:true" onclick="cancel()">关闭</a>
+		</div>
+		<table id="dg" class="easyui-datagrid" style="width:100%;height:auto"
+				data-options="
+					iconCls: 'icon-edit',
+					singleSelect: true,
+					toolbar: '#tb',
+					method: 'get',
+					onClickCell: onClickCell,
+					onEndEdit: onEndEdit
+				">
+			<thead>
+				<tr>
+					<th data-options="field:'def1',width:140,
+							editor:{
+								type:'combobox',
+								options:{
+										url:'/integral/config/find/2',
+				                		method:'get',
+										valueField:'id',
+										textField:'text',
+										panelHeight:'auto'
+										,required:true
+								}
+							}">商品</th>
+					<th data-options="field:'subTotal',width:80,align:'left',editor:'numberbox',required:true">数量</th>
+					<th data-options="field:'remark',width:270,align:'left',editor:'textbox'">备注</th>
+					<!-- <th data-options="field:'subProd',editable:false,width:80,align:'left'">商品名称</th>
+					<th data-options="field:'subTypeIntegral',editable:false,width:80,align:'left',required:true">商品积分</th> -->
+					<!-- <th data-options="field:'customerIntegral',editable:false,width:80,align:'left'">总积分</th> -->
+				</tr>
+			</thead>
+		</table>
+
+		<div th:include="include::footer"></div>
+		<script type="text/javascript">
+			function cancel(){
+				let index = parent.layer.getFrameIndex(window.name); // 获取窗口索引
+				parent.layer.close(index);
+			}
+			/**
+			保存
+			*/
+			function subSave(){
+				debugger;
+				
+				/* let chs1 = $('#dg').datagrid('getChanges');
+				let rows1 = $('#dg').datagrid('getRows'); */
+				//先结束所有行编辑
+				$('#dg').datagrid('acceptChanges');
+				/* let chs2 = $('#dg').datagrid('getChanges'); */
+				//获取所有行数据
+				let rows = $('#dg').datagrid('getRows');
+				//校验和处理数据
+				if(rows != null && rows.length > 0){
+					let vos = new Array();
+					let vo = {};
+					for(let i = 0, len = rows.length; i < len; i++){
+						let row = rows[i];
+						let configArr = row.def1.split("_");
+						if(configArr != null && configArr.length == 3){
+							row.configId = configArr[0];//id
+							row.subProd = configArr[1];//商品
+							let integral = Number(configArr[2]);//积分
+							row.subTypeIntegral = integral;
+							//数量
+							let total = Number(row.subTotal);
+							if(total <= 0){
+								layer.msg("数量必须输入");
+								return;
+							}
+							//总积分 可能为0 
+							row.customerIntegral =  Math.round(parseFloat(total*integral));
+							//
+							vo.customerIntegral = row.customerIntegral;//兑换总积分
+							vo.configId = row.configId;//兑换类型主键
+							vo.subProd = row.subProd;//兑换类型名称
+							vo.subTypeIntegral = row.subTypeIntegral;//兑换类型积分
+							vo.subTotal = row.subTotal;//兑换类型积分
+							vo.customerIdcard = row.customerIdcard;//客户主键
+							vo.remark = row.remark;
+							vos.push(vo);
+							vo = {};
+						}else{
+							layer.msg("请选择兑换商品");
+							return;
+						}
+					}
+					//发送请求
+					debugger;
+					$.ajax({
+						url:"/integral/handle/subSave",
+						contentType:"application/json", 
+					    data: JSON.stringify(vos),
+						type: "POST",
+						success:function(msg){
+							if(msg != null){
+								layer.msg(msg.message);
+								if(msg.flag){
+									parent.searchCustomer();
+									cancel();
+								}
+							}
+						}
+					});
+				}else{
+					layer.msg("请先录入数据");
+				}
+			}
+			var editIndex = undefined;
+			function endEditing(){
+				if (editIndex == undefined){return true}
+				//校验行
+				if ($('#dg').datagrid('validateRow', editIndex)){
+					//结束行编辑
+					$('#dg').datagrid('endEdit', editIndex);
+					editIndex = undefined;
+					return true;
+				} else {
+					return false;
+				}
+			}
+			function onClickCell(index, field){
+				if (editIndex != index){//不是同一行
+					if (endEditing()){
+						$('#dg').datagrid('selectRow', index)
+								.datagrid('beginEdit', index);
+						
+						var ed = $('#dg').datagrid('getEditor', {index:index,field:field});
+						/* if (ed){
+							($(ed.target).data('textbox') ? $(ed.target).textbox('textbox') : $(ed.target)).focus();
+						} */
+						editIndex = index;
+					} else {
+						setTimeout(function(){
+							$('#dg').datagrid('selectRow', editIndex);
+						},0);
+					}
+				}
+			}
+			/**
+				拆分兑换类型
+				总积分最后算
+			*/
+			function onEndEdit(index, row){
+			}
+			/**
+				添加行
+			*/
+			function append(){
+				if (endEditing()){
+					$('#dg').datagrid('appendRow',{customerIdcard:$("#customerIdcard").val()});//客户主键
+					editIndex = $('#dg').datagrid('getRows').length-1;
+					$('#dg').datagrid('selectRow', editIndex)
+							.datagrid('beginEdit', editIndex);
+				}
+			}
+			/**
+				删除行
+			*/
+			function removeit(){
+				if (editIndex == undefined){return}
+				$('#dg').datagrid('cancelEdit', editIndex)
+						.datagrid('deleteRow', editIndex);
+				editIndex = undefined;
+			}
+			
+		</script>
+	</body>
+</html>

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh_CN" xmlns:th="http://www.thymeleaf.org"
+	xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<meta charset="utf-8">
+<head th:include="include::header"></head>
+<body class="gray-bg">
+	<div class="wrapper wrapper-content ">
+		<div class="col-sm-12">
+			<div class="ibox">
+				<div class="ibox-body">
+					<div class="fixed-table-toolbar">
+						<div id="customerToolbar" class="columns pull-left"><!-- role="group" -->
+							<button shiro:hasPermission="integral:customer:add" type="button" 
+								class="btn btn-primary" onclick="add()">
+								<i class="fa fa-plus" aria-hidden="true"></i>添加
+							</button>
+							<button shiro:hasPermission="integral:customer:integral:add" type="button"
+								class="btn btn-danger" onclick="addIntegral()">
+								<i  aria-hidden="true"></i>积分添加
+							</button>
+							<button shiro:hasPermission="integral:customer:integral:vip" type="button"
+								class="btn btn-danger" onclick="vipIntegral()">
+								<i aria-hidden="true"></i>vip赠送
+							</button>
+							<button shiro:hasPermission="integral:customer:integral:sub" type="button"
+								class="btn btn-danger" onclick="subIntegral()">
+								<i aria-hidden="true"></i>积分兑换
+							</button>
+							<button shiro:hasPermission="integral:customer:export" type="button"
+								class="btn btn-primary" onclick="exportCustomer()">
+								<i aria-hidden="true"></i>导出
+							</button>
+						</div>
+						<div class="columns pull-right">
+							<button class="btn btn-success" onclick="reloadIntegralCustomer()">查询</button>
+						</div>
+					<!-- 查询条件 -->
+						<div class="columns pull-right col-md-1 nopadding">
+							<input id="customerName" type="text" class="form-control"
+								placeholder="客户名">
+						</div>
+						<div class="columns pull-right col-md-1 nopadding">
+							<input id="customerIdcard" type="text" class="form-control"
+								placeholder="身份证">
+						</div>
+						<div class="columns pull-right col-md-1 nopadding">
+							<input id="customerPhone" type="text" class="form-control"
+								placeholder="电话号码">
+						</div>
+					</div>
+					
+					<table id="customerTab" data-mobile-responsive="true">
+					</table>
+				</div>
+			</div>
+		</div>
+		<!--shiro控制bootstraptable行内按钮看见性 来自bootdo的创新方案 -->
+		<div>
+			<script type="text/javascript">
+				var s_edit_h = 'hidden';
+				var s_remove_h = 'hidden';
+				var hiddenFlag = 1;
+			</script>
+		</div>
+		<div shiro:hasPermission="integral:customer:edit">
+			<script type="text/javascript">
+				s_edit_h = '';
+			</script>
+		</div>
+		<div shiro:hasPermission="integral:customer:remove">
+			<script type="text/javascript">
+				var s_remove_h = '';
+			</script>
+		</div>
+		<!-- 身份证是否显示为*号， 1：显示， 2：不显示 -->
+		<div shiro:hasPermission="integral:customer:hidden:flag">
+			<script type="text/javascript">
+				var hiddenFlag = 2;
+			</script>
+		</div>
+
+	</div>
+	<div th:include="include::footer"></div>
+	<script type="text/javascript" src="/js/appjs/integral/customer/customer.js"></script>
+	</body>
+
+</html>

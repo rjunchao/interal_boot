@@ -1,0 +1,187 @@
+package cn.rdp.integral.cust.service.impl;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import cn.rdp.common.MsgResponse;
+import cn.rdp.common.utils.PageUtils;
+import cn.rdp.common.utils.Query;
+import cn.rdp.common.utils.ShiroUtils;
+import cn.rdp.common.utils.StringUtils;
+import cn.rdp.integral.cust.mapper.CustomerMapper;
+import cn.rdp.integral.cust.service.CustomerService;
+import cn.rdp.integral.domain.CustomerVO;
+import cn.rdp.integral.utils.IntegralUtils;
+import cn.rdp.system.domain.UserDO;
+import cn.rdp.system.service.impl.PrimaryKeyServiceImpl;
+
+/**
+* author:rjc 
+*  email: rjunchao@126.com
+*   date: 2018年11月21日 下午4:15:51
+*   desc: 
+*/
+@Service
+@Transactional(readOnly = false,rollbackFor = Exception.class)
+public class CustomerServiceImpl implements CustomerService{
+
+	@Autowired
+	private CustomerMapper mapper;
+	
+	@Autowired
+	private PrimaryKeyServiceImpl keyService;
+	
+//	@Cacheable(cacheNames = {"custList"}, cacheManager="doCacheManager")
+	@Transactional(readOnly = true,rollbackFor = Exception.class)
+	@Override
+	public PageUtils findCustomer(Map<String, Object> params) {
+		Query query = new Query(params);
+		int total = mapper.count(query);
+		if(total <= 0) {
+			return new PageUtils(new ArrayList<CustomerVO>(), 0);
+		}
+		List<CustomerVO> vos = mapper.findCustomer(query);
+		if(1 == Integer.parseInt(params.get("isFuzzyQuery").toString())) {
+			if(vos != null && vos.size() > 0) {
+				for(CustomerVO vo : vos){
+//					vo.setRealIdcard(vo.getCustomerIdcard());
+					vo.setCustomerIdcard(IntegralUtils.idcardToX(vo.getCustomerIdcard()));
+				}
+			}
+		}
+		PageUtils page = new PageUtils(vos, total);
+		return page;
+	}
+
+
+
+//	@CachePut(key = "#e.pkCustomerInfo")
+	@Override
+	public MsgResponse updateCustomer(CustomerVO vo, int hiddenFlag) {
+		try {
+			//判断身份证是否修改了
+			Map<String, Object> params = new HashMap<>();
+			params.put("pkCustomerInfo", vo.getPkCustomerInfo());
+			CustomerVO cust = mapper.get(params);
+			if(1 == hiddenFlag) {
+				String id = IntegralUtils.idcardToX(cust.getCustomerIdcard());
+				if(id.equals(vo.getCustomerIdcard())) {
+					//身份证没有修改,还原身份证去校验，修改了，就用修改后的身份证去校验
+					vo.setCustomerIdcard(vo.getRealIdcard());
+				}
+			}
+			//校验身份证、手机号不能重复
+			MsgResponse msg = validateCustomer(vo, 2);
+			if(msg != null) {
+				return msg;
+			}
+			
+			vo.setModifier(ShiroUtils.getUser().getUsername());
+			int count = mapper.updateCustomer(vo);
+			if(count > 0) {
+				return new MsgResponse(true, "客户修改成功");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new MsgResponse(false, "客户修改失败， " + e.getMessage());
+		}
+		return new MsgResponse(false, "客户修改失败");
+	}
+
+//	@CachePut
+	@Override
+	public MsgResponse addCustomer(CustomerVO vo) {
+		try {
+			//校验身份证、手机号不能重复
+			MsgResponse msg = validateCustomer(vo, 1);
+			if(msg != null) {
+				return msg;
+			}
+			UserDO user = ShiroUtils.getUser();
+			vo.setPkCustomerInfo(keyService.generatePrimaryKey("gd_customer_info"));
+			vo.setCreater(user.getUsername());
+			vo.setCreateOrg(user.getDeptId());
+			int count = mapper.addCustomer(vo);
+			if(count > 0) {
+				return new MsgResponse(true, "客户添加成功");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new MsgResponse(false, "客户添加失败， " + e.getMessage());
+		}
+		return new MsgResponse(false, "客户添加失败");
+	}
+
+//	@Cacheable(cacheNames = {"cust"}, cacheManager="doCacheManager")
+	@Transactional(readOnly = true,rollbackFor = Exception.class)
+	@Override
+	public CustomerVO get(Map<String, Object> params) {
+		return mapper.get(params);
+	}
+
+//	@CacheEvict(key = "#e.pkCustomerInfo")
+	@Override
+	public MsgResponse deleteCustomer(Map<String, Object> params) {
+		if(params.isEmpty()) {
+			throw new RuntimeException("请选择条件进行删除");
+		}
+		try {
+			int count = mapper.deleteCustomer(params );
+			if(count > 0) {
+				return new MsgResponse(true, "删除成功");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new MsgResponse(false, "删除失败， " + e.getMessage());
+		}
+		return new MsgResponse(false, "删除失败");
+	}
+	
+	/**
+	 * 校验
+	 * @param vo
+	 * @param i 1:添加，2
+	 */
+	private MsgResponse validateCustomer(CustomerVO vo, int type) {
+		String customer_idcard = vo.getCustomerIdcard();
+		if(StringUtils.isEmpty(customer_idcard)){
+			return new MsgResponse("身份证号为空，请填写！", false);
+		}
+		if(!customer_idcard.startsWith("**") && !customer_idcard.endsWith("**")){
+			if(customer_idcard.length() != 18){
+				return new MsgResponse("身份证号填写错误，请重新填写！", false);
+			}
+		}
+		if(StringUtils.isNotEmpty(vo.getCustomerPhone()) && vo.getCustomerPhone().trim().length() != 11){
+			return new MsgResponse("手机号填写错误，请重新填写！", false);
+		}
+		Map<String, Object> params = new HashMap<>();
+		params.put("customerIdcard", customer_idcard);
+		/*if(2 == type){
+			params.put("pkCustomerInfo", vo.getPkCustomerInfo());
+		}*/
+		CustomerVO cust = mapper.get(params);
+		if(cust != null && StringUtils.isNotEmpty(cust.getCustomerIdcard())) {
+			if(cust.getPkCustomerInfo() == (vo.getPkCustomerInfo())) {
+				//是自己
+				return null;
+			}
+			return new MsgResponse("身份证号重复，请重新填写！", false);
+		}
+		return null;
+	}
+
+
+	@Transactional(readOnly = false,rollbackFor = Exception.class)
+	@Override
+	public int updateCustomerIntegral(CustomerVO vo) {
+		return mapper.updateCustomerIntegral(vo);
+	}
+
+}

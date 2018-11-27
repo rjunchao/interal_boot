@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<body class="gray-bg">
+	<div class="wrapper wrapper-content ">
+		<div class="row">
+			<div class="col-sm-4">
+				<div class="ibox float-e-margins">
+					<div class="ibox-content">
+						<form class="form-horizontal m-t" id="paramForm">
+							<div class="form-group">
+								<label class="col-sm-1 control-label">参数编码：</label>
+								<div class="col-sm-1">
+									<input id="paramCode" name="paramCode" class="form-control" type="text">
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-1 control-label">参数值：</label>
+								<div class="col-sm-1">
+									<input id="paramValue" name="paramValue" class="form-control" type="text">
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-1 control-label">参数说明：</label>
+								<div class="col-sm-1">
+									<input id="paramDesc" name="paramDesc" class="form-control" type="text">
+								</div>
+							</div>
+							<div class="form-group">
+								<div class="col-sm-1 col-sm-offset-1">
+									<button type="submit" class="btn btn-primary">提交</button>
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div th:include="include::footer"></div>
+	<script type="text/javascript" src="/js/appjs/sys/param/add.js">
+	</script>
+</body>
+</html>

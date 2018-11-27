@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="zh_CN" xmlns:th="http://www.thymeleaf.org"
+	xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+	<head th:include="include::header">
+	<meta charset="UTF-8">
+		<!-- 
+			author:rjc
+			date:2018年11月24日
+			desc: 处理vip积分赠送
+		-->
+		<title>Insert title here</title>
+	</head>
+	<body>
+		<form id="vipHandleForm">
+			<table style="width:100%;text-align:center;">
+				<tr>
+					<td style="text-align:right;">vip积分赠送类型：</td>
+					<td style="text-align:left;">
+						<input id="configId" class="easyui-combobox" name="configId" style="width:130px;" data-options="
+							url:'/integral/config/find/3',
+							method:'get',
+							valueField:'id',
+							textField:'text',
+							panelHeight:'auto',
+							iconWidth:22,
+							labelPosition: 'top',
+							required:true
+						">
+					</td>
+				</tr>
+				<tr>
+		            <td style="text-align:right;">&nbsp;&nbsp;备注： </td>
+		            <td style="text-align:left;" colspan="3">
+		            	<input id="remark" class="easyui-textbox" style="width:130px;height:90px;" 
+		            		labelPosition="top" multiline="true" name="remark"></input>
+		            	<input name="customerIdcard" type="hidden" th:value="${pk}"></input>
+		            </td>
+		        </tr>
+			</table>
+		</form>
+		<div style="padding:5px;width:100%;text-align:center;">
+		    <button class="easyui-linkbutton" onclick="vipSave()">保存</button>
+		    <a href="javascript:void(0)" class="easyui-linkbutton" onclick="cancel()">关闭</a>
+		</div>
+		<div th:include="include::footer"></div>
+		<script type="text/javascript" src="/js/appjs/integral/handller/integralHandller.js"></script>
+	</body>
+</html>

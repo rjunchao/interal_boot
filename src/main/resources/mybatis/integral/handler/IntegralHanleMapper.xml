@@ -19,14 +19,6 @@
 				AND customer_idcard=#{customerIdCard}
 	</select>
 	
-	<select id="findAddIntegralDetail" resultType="int">
-		<include refid="addIntegralDetailField"></include>
-		<where>
-			t.dr = 0
-			<if test="customerAccount != null and customerAccount != ''"> and customer_account = #{customerAccount}</if>
-			<if test="accountNumber != null and accountNumber != ''"> and account_number = #{accountNumber}</if>
-		</where>
-	</select>
 	
 	<insert id="addVipIntegralDetail" >
 		insert into gd_vip_integral_detail(

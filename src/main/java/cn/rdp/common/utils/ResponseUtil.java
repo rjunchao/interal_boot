@@ -4,6 +4,8 @@ import java.io.PrintWriter;
 
 import javax.servlet.http.HttpServletResponse;
 
+import cn.rdp.common.domain.ExportFile;
+
 
 public class ResponseUtil {
 
@@ -14,5 +16,19 @@ public class ResponseUtil {
         out.println(o.toString());
         out.flush();
         out.close();
+    }
+    
+    public static void download(HttpServletResponse response, ExportFile ef) throws Exception {
+    	response.setContentType("application/vnd.ms-excel;charset=utf-8");
+		response.setCharacterEncoding("utf-8");
+		response.addHeader("Content-Disposition", "attachment;filename=" + 
+		ef.getFileName() + ef.getSufix());
+		try {
+			ef.getWb().write(response.getOutputStream());
+			response.getOutputStream().flush();
+			response.getOutputStream().close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
     }
 }

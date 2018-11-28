@@ -5,6 +5,7 @@ import java.util.Map;
 import org.springframework.stereotype.Service;
 
 import cn.rdp.common.MsgResponse;
+import cn.rdp.common.domain.ExportFile;
 import cn.rdp.common.utils.PageUtils;
 import cn.rdp.integral.domain.CustomerVO;
 
@@ -19,7 +20,6 @@ public interface CustomerService {
 
 	PageUtils findCustomer(Map<String, Object> params);
 	
-	
 	CustomerVO get(Map<String, Object> params);
 	
 	MsgResponse deleteCustomer(Map<String, Object> params);
@@ -29,4 +29,6 @@ public interface CustomerService {
 	MsgResponse addCustomer(CustomerVO vo);
 	
 	int updateCustomerIntegral(CustomerVO vo);
+	
+	ExportFile exportCustomer(Map<String, Object> params, int hiddenFlag);
 }

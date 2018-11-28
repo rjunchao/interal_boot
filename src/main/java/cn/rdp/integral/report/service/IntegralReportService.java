@@ -4,6 +4,7 @@ import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
+import cn.rdp.common.domain.ExportFile;
 import cn.rdp.common.utils.PageUtils;
 
 /**
@@ -21,5 +22,6 @@ public interface IntegralReportService {
 	
 	PageUtils findSubIntegralDetail(Map<String, Object> params);
 	
+	ExportFile exportIntegralDetail(Map<String, Object> params, int type, int hiddenFlag);
 	
 }

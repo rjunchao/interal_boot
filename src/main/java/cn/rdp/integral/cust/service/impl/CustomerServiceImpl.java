@@ -5,11 +5,24 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.poi.hssf.usermodel.HSSFCellStyle;
+import org.apache.poi.hssf.util.HSSFColor;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import cn.rdp.common.MsgResponse;
+import cn.rdp.common.domain.ExportFile;
+import cn.rdp.common.utils.DateUtils;
+import cn.rdp.common.utils.ExcelUtils;
 import cn.rdp.common.utils.PageUtils;
 import cn.rdp.common.utils.Query;
 import cn.rdp.common.utils.ShiroUtils;
@@ -184,4 +197,84 @@ public class CustomerServiceImpl implements CustomerService{
 		return mapper.updateCustomerIntegral(vo);
 	}
 
+
+
+	@Override
+	public ExportFile exportCustomer(Map<String, Object> params, int hiddenFlag) {
+		params.put("isFuzzyQuery", hiddenFlag);
+		List<CustomerVO> customers = mapper.findCustomer(params);
+		if(customers == null ){
+			customers = new ArrayList<>();
+		}
+		if(1 == Integer.parseInt(params.get("isFuzzyQuery").toString())) {
+			if(customers != null && customers.size() > 0) {
+				for(CustomerVO vo : customers){
+//					vo.setRealIdcard(vo.getCustomerIdcard());
+					vo.setCustomerIdcard(IntegralUtils.idcardToX(vo.getCustomerIdcard()));
+				}
+			}
+		}
+		//导出
+		
+		Workbook wb = new XSSFWorkbook();
+		Sheet sheet = wb.createSheet("客户信息表");
+		Row row0 = sheet.createRow(0);
+		Cell cell = row0.createCell(0);
+		//第一行
+		CellStyle style = wb.createCellStyle();
+		Font font = wb.createFont();
+		font.setFontHeightInPoints((short)12);
+		style.setFont(font);
+		style.setAlignment(HSSFCellStyle.ALIGN_CENTER);
+		cell.setCellStyle(style);
+		
+		cell.setCellValue("客户积分明细表");
+		sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 8));
+		cell.setCellStyle(style);
+		setCellWidth(sheet);
+		String[] titles = {"客户名称", "客户身份证号", "电话", 
+					"当前可用积分", "VIP", "录入人", "录入机构" , "录入时间", "备注"};
+		//创建表头
+		bulidTitleWorkbook(wb, titles);
+		Row row = sheet.createRow(1);
+//		ExcelUtils.batchCreateCell(row, titles);
+		if(customers.size() >= 0){
+			String[] contents = null;
+			CustomerVO vo = null;
+			for(int i = 0, len = customers.size(); i < len; i++){
+				vo = customers.get(i);
+				contents = new String[]{vo.getCustomerName(), vo.getCustomerIdcard(), vo.getCustomerPhone(),
+						vo.getNowUsableIntegral() + "", vo.getDef1(), vo.getCreateName(),
+						vo.getOrgname(), vo.getTs(), vo.getRemark() };
+				row = sheet.createRow((i+2));
+				ExcelUtils.batchCreateCell(row, contents);
+			}
+		}
+		ExportFile ef = new ExportFile();
+		ef.setSufix(".xlsx");
+		ef.setFileName("客户信息" + DateUtils.format("yyyyMMddHHmmss"));
+		ef.setWb(wb);
+		return ef;
+	}
+
+	public void bulidTitleWorkbook(Workbook wb, String[] titles) {
+		Sheet sheet = wb.getSheetAt(0);
+		Row row = sheet.createRow(1);
+		CellStyle style = wb.createCellStyle();
+		style = wb.createCellStyle();
+		style.setFillForegroundColor(HSSFColor.LIGHT_TURQUOISE.index);//前景色
+		style.setFillPattern(CellStyle.SOLID_FOREGROUND);
+		Font font = wb.createFont();
+		font.setFontHeightInPoints((short)12);//字体
+		style.setFont(font);
+		row.setHeightInPoints(16);
+		ExcelUtils.batchCreateCell(row, titles, style);
+	}
+	
+	private void setCellWidth(Sheet sheet) {
+		for(int i = 0; i < 9; i++){
+			sheet.setColumnWidth(i, 50*100);
+		}
+		
+	}
 }

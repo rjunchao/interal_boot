@@ -1,16 +1,16 @@
 package cn.rdp.common.utils;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 日期处理
  */
 public class DateUtils {
-    private final static Logger logger = LoggerFactory.getLogger(DateUtils.class);
+//    private final static Logger logger = LoggerFactory.getLogger(DateUtils.class);
     /**
      * 时间格式(yyyy-MM-dd)
      */
@@ -30,6 +30,11 @@ public class DateUtils {
             return df.format(date);
         }
         return null;
+    }
+    
+    public static String format(String pattern) {
+    	SimpleDateFormat df = new SimpleDateFormat(pattern);
+    	return df.format(new Date());
     }
 
     /**

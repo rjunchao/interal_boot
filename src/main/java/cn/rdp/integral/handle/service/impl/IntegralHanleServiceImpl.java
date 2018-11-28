@@ -173,7 +173,7 @@ public class IntegralHanleServiceImpl implements IntegralHanleService{
 			Map<String, Object> params = new HashMap<>();
 			params.put("customerAccount", num);//账号
 			params.put("accountNumber", accountNumber);//账户序号
-			List<AddIntegralDetailVO> vos = mapper.findAddIntegralDetail(params);
+			List<AddIntegralDetailVO> vos = mapper.findAddIntegralDetailPage(params);
 			String duration = vo.getDuration();//是否存续期
 			if(vos != null && vos.size() > 0){
 				for(AddIntegralDetailVO o : vos){

@@ -150,6 +150,10 @@
 			layer.msg("请选择要兑换积分的客户");
 			return;
 		}
+		if(cs[0].nowUsableIntegral <= 0){
+			layer.msg("客户积分为0，不能兑换礼品！");
+			return;
+		}
 		let id = cs[0].pkCustomerInfo;
 		layer.open({
 			type:2,
@@ -159,4 +163,14 @@
 			area : [ '500px', '300px' ],//宽，高
 			content : '/integral/handle/index/2/' + id// iframe的url
 		});
+	}
+	/**
+	 * 客户信息导出
+	 * @returns
+	 */
+	function customerExport(){
+		//封装参数
+		let params = $("#paramFrom").serialize();
+		window.open("/integral/customer/export/" + hiddenFlag + "?" + params);
+
 	}

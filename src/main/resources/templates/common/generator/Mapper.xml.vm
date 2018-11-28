@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="${package}.dao.${className}Dao">
+<mapper namespace="${package}.dao.${className}Mapper">
 
 	<select id="get" resultType="${package}.domain.${className}DO">
 		select #foreach($column in $columns)`$column.columnName`#if($velocityCount != $columns.size()),#end#end from ${tableName} where ${pk.columnName} = #{value}

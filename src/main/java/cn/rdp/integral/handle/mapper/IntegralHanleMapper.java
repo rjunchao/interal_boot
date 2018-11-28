@@ -37,8 +37,6 @@ public interface IntegralHanleMapper {
 	
 	List<AddIntegralDetailVO> findAddIntegralDetailPage(Map<String, Object> params);
 	
-	List<AddIntegralDetailVO> findAddIntegralDetail(Map<String, Object> params);
-	
 	List<SubIntegralDetailVO> findSubIntegralDetailPage(Map<String, Object> params);
 	
 	int count(Map<String, Object> params);

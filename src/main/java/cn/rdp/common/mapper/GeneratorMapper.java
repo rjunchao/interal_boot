@@ -5,6 +5,12 @@ import java.util.Map;
 
 import org.apache.ibatis.annotations.Select;
 
+/**
+ * mysql的sql
+ * 如果是oracle需要重写sql
+ * @author ienovo
+ *
+ */
 public interface GeneratorMapper {
 	@Select("select table_name tableName, engine, table_comment tableComment, create_time createTime from information_schema.tables"
 			+ " where table_schema = (select database())")

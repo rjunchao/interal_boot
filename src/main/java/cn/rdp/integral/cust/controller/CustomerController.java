@@ -3,6 +3,8 @@ package cn.rdp.integral.cust.controller;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -15,8 +17,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import cn.rdp.common.MsgResponse;
+import cn.rdp.common.annotation.Log;
 import cn.rdp.common.controller.BaseController;
+import cn.rdp.common.domain.ExportFile;
 import cn.rdp.common.utils.PageUtils;
+import cn.rdp.common.utils.ResponseUtil;
 import cn.rdp.integral.cust.service.CustomerService;
 import cn.rdp.integral.domain.CustomerVO;
 import cn.rdp.integral.utils.IntegralUtils;
@@ -111,6 +116,20 @@ public class CustomerController extends BaseController{
 		Map<String, Object> params = new HashMap<>();
 		params.put("pkCustomerInfo", id);
 		return custService.deleteCustomer(params);
+	}
+	
+	@Log("导出客户信息")
+	@GetMapping("export/{hiddenFlag}")
+	public @ResponseBody String export(@RequestParam Map<String, Object> params, HttpServletResponse resp
+			,@PathVariable(name = "hiddenFlag", required=true)int hiddenFlag) {
+		ExportFile ef = custService.exportCustomer(params, hiddenFlag);
+		try {
+			ef.setSufix(".xlsx");
+			ResponseUtil.download(resp, ef);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return "success";
 	}
 	
 }

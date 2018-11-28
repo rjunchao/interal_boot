@@ -38,5 +38,6 @@
 	 * @returns
 	 */
 	function detailExport(type){
-		
+		let params = $("#paramFrom").serialize();
+		window.open(prefix + "/export/" + hiddenFlag + "/"+type+"?" + params);
 	}
